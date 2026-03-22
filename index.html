@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created by Nandan Kumar
+        ASCII Canvas Editor - A powerful diagram editor
+-->
+<meta name="generator" content="Nandan Kumar">
+<meta name="author" content="Nandan Kumar">
+<meta name="description" content="ASCII Canvas Editor - A powerful web-based diagram editor for creating ASCII art diagrams">
+<meta name="keywords" content="ASCII, diagram, editor, canvas, art, drawing">
+<meta property="og:title" content="ASCII Canvas — Diagram Editor">
+<meta property="og:description" content="A powerful web-based ASCII diagram editor">
+<meta property="og:type" content="website">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASCII Canvas — Diagram Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="logo">ASCII<span>Canvas</span></div>
+    <div class="topbar-divider"></div>
+
+    <div id="toolbar">
+      <!-- Select -->
+      <button class="tool-btn active" data-tool="select" data-tooltip="Select / Move (V)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 3l14 9-7 2-4 7z"/></svg>
+        <span class="shortcut">V</span>
+      </button>
+
+      <div class="tool-sep"></div>
+
+      <!-- Rectangle -->
+      <button class="tool-btn" data-tool="rect" data-tooltip="Rectangle (R)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="1"/></svg>
+        <span class="shortcut">R</span>
+      </button>
+
+      <!-- Diamond -->
+      <button class="tool-btn" data-tool="diamond" data-tooltip="Diamond (D)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+        <span class="shortcut">D</span>
+      </button>
+
+      <!-- Line -->
+      <button class="tool-btn" data-tool="line" data-tooltip="Line (L)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="19" x2="19" y2="5"/></svg>
+        <span class="shortcut">L</span>
+      </button>
+
+      <!-- Arrow -->
+      <button class="tool-btn" data-tool="arrow" data-tooltip="Arrow (A)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="19" x2="19" y2="5"/><polyline points="12 5 19 5 19 12"/></svg>
+        <span class="shortcut">A</span>
+      </button>
+
+      <div class="tool-sep"></div>
+
+      <!-- Text -->
+      <button class="tool-btn" data-tool="text" data-tooltip="Text (T)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 7 4 4 20 4 20 7"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>
+        <span class="shortcut">T</span>
+      </button>
+
+      <!-- Freehand -->
+      <button class="tool-btn" data-tool="freehand" data-tooltip="Freehand (F)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 17c3-2 5-8 9-8s4 6 9 4"/></svg>
+        <span class="shortcut">F</span>
+      </button>
+
+      <div class="tool-sep"></div>
+
+      <!-- Eraser -->
+      <button class="tool-btn" data-tool="eraser" data-tooltip="Eraser (E)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 20H7L3 16l10-10 8 8-4 4"/><line x1="14" y1="6" x2="20" y2="12"/></svg>
+        <span class="shortcut">E</span>
+      </button>
+    </div>
+
+    <div class="topbar-divider"></div>
+
+    <div class="topbar-actions">
+      <!-- Undo/Redo -->
+      <button class="action-btn" id="undo-btn" data-tooltip="Undo (Ctrl+Z)" title="Undo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      </button>
+      <button class="action-btn" id="redo-btn" data-tooltip="Redo (Ctrl+Y)" title="Redo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
+      </button>
+
+      <div class="topbar-divider"></div>
+
+      <!-- Clear -->
+      <button class="action-btn" id="clear-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Clear
+      </button>
+
+      <!-- Copy ASCII -->
+      <button class="action-btn primary" id="copy-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy ASCII
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+    <!-- LEFT PANEL -->
+    <div id="left-panel">
+      <!-- Border Styles (shown for rect) -->
+      <div class="panel-section" id="panel-border-styles">
+        <div class="panel-label">Border Style</div>
+        <div class="border-styles">
+          <button class="border-style-btn active" data-border="simple">
+            <span class="preview">+-+</span>
+            <span class="label">Simple</span>
+          </button>
+          <button class="border-style-btn" data-border="double">
+            <span class="preview">╔═╗</span>
+            <span class="label">Double</span>
+          </button>
+          <button class="border-style-btn" data-border="rounded">
+            <span class="preview">╭─╮</span>
+            <span class="label">Rounded</span>
+          </button>
+          <button class="border-style-btn" data-border="heavy">
+            <span class="preview">┏━┓</span>
+            <span class="label">Heavy</span>
+          </button>
+          <button class="border-style-btn" data-border="light">
+            <span class="preview">┌─┐</span>
+            <span class="label">Light</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Arrow head style (shown for arrow) -->
+      <div class="panel-section panel-arrow-styles hidden" id="panel-arrow-styles">
+        <div class="panel-label">Arrow Head</div>
+        <div class="arrow-styles">
+          <button class="arrow-style-btn active" data-arrowhead="arrow">&gt;</button>
+          <button class="arrow-style-btn" data-arrowhead="triangle">&#9654;</button>
+        </div>
+      </div>
+
+      <!-- Line style (shown for line) -->
+      <div class="panel-section panel-line-styles hidden" id="panel-line-styles">
+        <div class="panel-label">Line Style</div>
+        <div class="border-styles">
+          <button class="border-style-btn active" data-linestyle="ascii">
+            <span class="preview">---</span>
+            <span class="label">ASCII</span>
+          </button>
+          <button class="border-style-btn" data-linestyle="light">
+            <span class="preview">───</span>
+            <span class="label">Light</span>
+          </button>
+          <button class="border-style-btn" data-linestyle="heavy">
+            <span class="preview">━━━</span>
+            <span class="label">Heavy</span>
+          </button>
+          <button class="border-style-btn" data-linestyle="dashed">
+            <span class="preview">- -</span>
+            <span class="label">Dashed</span>
+          </button>
+          <button class="border-style-btn" data-linestyle="dotted">
+            <span class="preview">···</span>
+            <span class="label">Dotted</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Freehand char (shown for freehand) -->
+      <div class="panel-section panel-freehand hidden" id="panel-freehand">
+        <div class="panel-label">Draw Character</div>
+        <div class="char-picker">
+          <button class="char-btn active" data-char="*">*</button>
+          <button class="char-btn" data-char="#">#</button>
+          <button class="char-btn" data-char="@">@</button>
+          <button class="char-btn" data-char="~">~</button>
+          <button class="char-btn" data-char=".">.</button>
+          <button class="char-btn" data-char="x">x</button>
+          <button class="char-btn" data-char="o">o</button>
+          <button class="char-btn" data-char="█">█</button>
+        </div>
+      </div>
+
+      <!-- Eraser size (shown for eraser) -->
+      <div class="panel-section panel-eraser hidden" id="panel-eraser">
+        <div class="panel-label">Eraser Size</div>
+        <div class="arrow-styles">
+          <button class="arrow-style-btn active" data-erasersize="1">1</button>
+          <button class="arrow-style-btn" data-erasersize="3">3</button>
+          <button class="arrow-style-btn" data-erasersize="5">5</button>
+        </div>
+      </div>
+
+      <!-- Diamond style -->
+      <div class="panel-section panel-diamond-styles hidden" id="panel-diamond-styles">
+        <div class="panel-label">Diamond Style</div>
+        <div class="border-styles">
+          <button class="border-style-btn active" data-diamondstyle="simple">
+            <span class="preview">/\</span>
+            <span class="label">Simple</span>
+          </button>
+          <button class="border-style-btn" data-diamondstyle="unicode">
+            <span class="preview">◇</span>
+            <span class="label">Unicode</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Shortcuts reference -->
+      <div class="panel-section shortcuts-section" id="shortcuts-section">
+        <div class="panel-label">Shortcuts</div>
+        <div class="shortcuts-list">
+          <div class="shortcut-row"><span class="desc">Select</span><span class="key">V</span></div>
+          <div class="shortcut-row"><span class="desc">Rectangle</span><span class="key">R</span></div>
+          <div class="shortcut-row"><span class="desc">Diamond</span><span class="key">D</span></div>
+          <div class="shortcut-row"><span class="desc">Line</span><span class="key">L</span></div>
+          <div class="shortcut-row"><span class="desc">Arrow</span><span class="key">A</span></div>
+          <div class="shortcut-row"><span class="desc">Text</span><span class="key">T</span></div>
+          <div class="shortcut-row"><span class="desc">Freehand</span><span class="key">F</span></div>
+          <div class="shortcut-row"><span class="desc">Eraser</span><span class="key">E</span></div>
+          <div class="shortcut-row"><span class="desc">Undo</span><span class="key">Ctrl+Z</span></div>
+          <div class="shortcut-row"><span class="desc">Redo</span><span class="key">Ctrl+Y</span></div>
+          <div class="shortcut-row"><span class="desc">Copy</span><span class="key">Ctrl+Shift+C</span></div>
+          <div class="shortcut-row"><span class="desc">Zoom</span><span class="key">Scroll</span></div>
+          <div class="shortcut-row"><span class="desc">Pan</span><span class="key">Space+Drag</span></div>
+          <div class="shortcut-row"><span class="desc">Delete</span><span class="key">Del / Bksp</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CANVAS AREA -->
+    <div id="canvas-container">
+      <canvas id="grid-canvas"></canvas>
+      <canvas id="overlay-canvas"></canvas>
+      <pre id="ascii-canvas"></pre>
+      <div id="interaction-layer"></div>
+      <div id="text-input-overlay"><textarea placeholder="Type your text here..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- STATUSBAR -->
+  <div id="statusbar">
+    <div class="status-item">
+      <span class="label">Cursor</span>
+      <span class="value" id="status-cursor">0, 0</span>
+    </div>
+    <div class="status-item">
+      <span class="label">Canvas</span>
+      <span class="value" id="status-canvas">200×80</span>
+    </div>
+    <div class="status-item">
+      <span class="label">Zoom</span>
+      <span class="value" id="status-zoom">100%</span>
+    </div>
+    <div class="status-item">
+      <span class="label">Tool</span>
+      <span class="value" id="status-tool">Select</span>
+    </div>
+    <div class="status-spacer"></div>
+    <div class="status-item">
+      <span class="value" id="status-hint">Space+Drag to pan · Scroll to zoom</span>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Attribution -->
+<div class="attribution-footer">
+  <span>Created by Nandan Kumar</span>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
