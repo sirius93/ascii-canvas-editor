@@ -1099,7 +1099,37 @@ interactionLayer.addEventListener('contextmenu', (e) => e.preventDefault());
 interactionLayer.addEventListener('selectstart', (e) => e.preventDefault());
 interactionLayer.addEventListener('dragstart', (e) => e.preventDefault());
 
+// ---------- THEME TOGGLE ----------
+function initTheme() {
+  const savedTheme = localStorage.getItem('ascii-canvas-theme') || 'dark';
+  const html = document.documentElement;
+  html.setAttribute('data-theme', savedTheme);
+  updateThemeIcons(savedTheme);
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const currentTheme = html.getAttribute('data-theme') || 'dark';
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', newTheme);
+  localStorage.setItem('ascii-canvas-theme', newTheme);
+  updateThemeIcons(newTheme);
+}
+
+function updateThemeIcons(theme) {
+  const toggleBtn = document.getElementById('theme-toggle-btn');
+  if (theme === 'light') {
+    toggleBtn.classList.add('light-mode');
+  } else {
+    toggleBtn.classList.remove('light-mode');
+  }
+}
+
+// Attach theme toggle event listener
+document.getElementById('theme-toggle-btn').addEventListener('click', toggleTheme);
+
 // ---------- RUN ----------
+initTheme();
 init();
 
 })();

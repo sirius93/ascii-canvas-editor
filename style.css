@@ -1,7 +1,7 @@
 /* ==================== CSS RESET & TOKENS ==================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
+:root, [data-theme="dark"] {
   --bg: #0d0d0d;
   --bg-surface: #161616;
   --bg-surface-2: #1e1e1e;
@@ -9,6 +9,7 @@
   --border: #2a2a2a;
   --border-hover: #3a3a3a;
   --text: #e0e0e0;
+  --text-normal: #e0e0e0;
   --text-muted: #888;
   --text-faint: #555;
   --accent: #4f98a3;
@@ -23,6 +24,31 @@
   --font-mono: 'JetBrains Mono', 'Consolas', monospace;
   --shadow: 0 4px 24px rgba(0,0,0,0.5);
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-surface: #f5f5f5;
+  --bg-surface-2: #eeeeee;
+  --bg-surface-3: #e8e8e8;
+  --border: #d0d0d0;
+  --border-hover: #c0c0c0;
+  --text: #222222;
+  --text-normal: #222222;
+  --text-muted: #666666;
+  --text-faint: #999999;
+  --accent: #2a7a8c;
+  --accent-hover: #1f5a6f;
+  --accent-dim: rgba(42, 122, 140, 0.15);
+  --error: #c93366;
+  --success: #4a8c1a;
+  --warning: #a8521a;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 html, body {
@@ -508,6 +534,19 @@ html, body {
 }
 
 /* ---------- SELECTION HANDLES ---------- */
+
+/* ---------- THEME TOGGLE ---------- */
+#theme-toggle-btn .sun-icon {
+  display: none;
+}
+
+[data-theme="light"] #theme-toggle-btn .sun-icon {
+  display: block;
+}
+
+[data-theme="light"] #theme-toggle-btn .moon-icon {
+  display: none;
+}
 
 /* ---------- FOOTER ---------- */
 .attribution-footer {
