@@ -460,6 +460,22 @@ function eraseArea(r, c, size) {
   }
 }
 
+// ---------- USAGE TRACKING FOR COFFEE BUTTON ----------
+let usageCount = parseInt(localStorage.getItem('ascii-canvas-usage') || '0');
+
+function trackUsage() {
+  usageCount++;
+  localStorage.setItem('ascii-canvas-usage', usageCount.toString());
+
+  // Show floating coffee button after 3 uses
+  if (usageCount >= 3) {
+    const coffeeBtn = document.getElementById('floating-coffee');
+    if (coffeeBtn) {
+      coffeeBtn.classList.remove('hidden');
+    }
+  }
+}
+
 // ---------- COPY ASCII ----------
 function copyASCII() {
   let lines = [];
@@ -501,6 +517,7 @@ function copyASCII() {
 
   navigator.clipboard.writeText(text).then(() => {
     showToast('Copied to clipboard', 'success');
+    trackUsage();
   }).catch(() => {
     // Fallback
     const ta = document.createElement('textarea');
@@ -512,6 +529,7 @@ function copyASCII() {
     try {
       document.execCommand('copy');
       showToast('Copied to clipboard', 'success');
+      trackUsage();
     } catch(e) {
       showToast('Copy failed — try Ctrl+C', 'error');
     }
@@ -1180,6 +1198,7 @@ function downloadImage() {
   document.body.removeChild(link);
 
   showToast('Image downloaded', 'success');
+  trackUsage();
 }
 
 // Attach download event listener
@@ -1215,7 +1234,17 @@ function updateThemeIcons(theme) {
 document.getElementById('theme-toggle-btn').addEventListener('click', toggleTheme);
 
 // ---------- RUN ----------
+function initCoffeeButton() {
+  if (usageCount >= 3) {
+    const coffeeBtn = document.getElementById('floating-coffee');
+    if (coffeeBtn) {
+      coffeeBtn.classList.remove('hidden');
+    }
+  }
+}
+
 initTheme();
+initCoffeeButton();
 init();
 
 })();
