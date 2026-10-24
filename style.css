@@ -1,3 +1,19 @@
+/* ==================== FONTS ==================== */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+  src: url('fonts/JetBrainsMono-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+  src: url('fonts/JetBrainsMono-Bold.woff2') format('woff2');
+}
+
 /* ==================== CSS RESET & TOKENS ==================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -14,7 +30,7 @@
   --text-faint: #555;
   --accent: #4f98a3;
   --accent-hover: #5bb0bd;
-  --accent-dim: rgba(163, 79, 101, 0.15);
+  --accent-dim: rgba(79, 152, 163, 0.15);
   --error: #d163a7;
   --success: #6daa45;
   --warning: #bb653b;
@@ -24,6 +40,7 @@
   --font-mono: 'JetBrains Mono', 'Consolas', monospace;
   --shadow: 0 4px 24px rgba(0,0,0,0.5);
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+  --grid-line: rgba(255,255,255,0.04);
 }
 
 [data-theme="light"] {
@@ -49,11 +66,12 @@
   --font-mono: 'JetBrains Mono', 'Consolas', monospace;
   --shadow: 0 4px 24px rgba(0,0,0,0.08);
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+  --grid-line: rgba(0,0,0,0.07);
 }
 
 html, body {
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-ui);
@@ -421,6 +439,7 @@ html, body {
   color: var(--text);
   white-space: pre;
   pointer-events: none;
+  z-index: 2;
   transform-origin: 0 0;
   -webkit-user-select: none;
   user-select: none;
@@ -662,4 +681,31 @@ html, body {
   pointer-events: none;
   font-family: var(--font-ui);
   font-weight: 400;
+}
+
+/* ---------- ABOUT / SEO CONTENT ---------- */
+.about {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 20px 80px;
+  line-height: 1.65;
+  font-size: 14px;
+  color: var(--text-muted);
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.about h1 { font-size: 26px; line-height: 1.25; color: var(--text); margin-bottom: 12px; }
+.about h2 { font-size: 18px; color: var(--text); margin: 32px 0 10px; }
+.about h3 { font-size: 14px; color: var(--text); margin: 18px 0 4px; }
+.about p { margin-bottom: 10px; }
+.about ol, .about ul { margin: 0 0 10px 20px; }
+.about li { margin-bottom: 4px; }
+.about kbd {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 4px;
 }
