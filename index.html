@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!--
         ASCII Canvas Editor - Create Beautiful ASCII Art Diagrams Online
         Free web-based ASCII diagram maker and drawing tool
         Features: rectangles, diamonds, lines, arrows, text, PNG export, dark/light mode
         Created by Nandan Kumar - Open source ASCII art editor
 -->
-<meta name="generator" content="Nandan Kumar">
+<title>ASCII Canvas Editor – Free ASCII Diagram Tool</title>
 <meta name="author" content="Nandan Kumar">
 <meta name="description" content="Create stunning ASCII art diagrams and drawings with our powerful web-based ASCII Canvas Editor. Draw rectangles, diamonds, lines, arrows, and text. Export as PNG images. Free online ASCII diagram maker with dark/light mode support.">
-<meta name="keywords" content="ASCII art, ASCII diagram, ASCII editor, ASCII canvas, ASCII drawing, ASCII art maker, ASCII diagram tool, ASCII art generator, ASCII art online, ASCII diagram creator, ASCII art software, ASCII drawing tool, ASCII art web app, ASCII diagram maker, ASCII art editor online">
+<link rel="canonical" href="https://nandan.dev/ascii-canvas-editor/">
+<meta property="og:site_name" content="Nandan Kumar">
 <meta property="og:title" content="ASCII Canvas Editor - Create Beautiful ASCII Art Diagrams Online">
 <meta property="og:description" content="Powerful web-based ASCII art editor for creating diagrams, drawings, and ASCII art. Draw shapes, text, and export as PNG. Free online ASCII diagram maker with dark/light themes.">
 <meta property="og:type" content="website">
@@ -21,23 +24,27 @@
 <meta name="twitter:description" content="Create beautiful ASCII art diagrams online. Draw shapes, text, and export as PNG. Free ASCII diagram editor with dark/light mode.">
 <meta name="twitter:image" content="https://nandan.dev/ascii-canvas-editor/preview.png">
 <meta name="robots" content="index, follow">
-<meta name="language" content="English">
-<meta name="revisit-after" content="7 days">
 <meta name="theme-color" content="#4f98a3">
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ASCII Canvas Editor - Create Beautiful ASCII Art Diagrams Online | Free ASCII Drawing Tool</title>
+<script>
+  // Set theme before first paint to avoid a dark flash
+  try {
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('ascii-canvas-theme') ||
+      (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+</script>
+<link rel="preload" href="fonts/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<link rel="icon" type="image/x-icon" href="https://nandan.dev/ascii-canvas-editor/favicon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "ASCII Canvas Editor", "url": "https://nandan.dev/ascii-canvas-editor/", "description": "Free web-based ASCII diagram and art editor with rectangles, diamonds, lines, arrows, text and PNG export.", "applicationCategory": "DesignApplication", "operatingSystem": "Any", "image": "https://nandan.dev/ascii-canvas-editor/preview.png", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "author": {"@type": "Person", "name": "Nandan Kumar"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make an ASCII box diagram?", "acceptedAnswer": {"@type": "Answer", "text": "Pick the Rectangle tool (R), choose a border style such as Simple, Double, Rounded, Heavy or Light, then click and drag on the canvas. Add Arrow and Line tools to connect boxes and the Text tool to label them."}}, {"@type": "Question", "name": "Can I export my ASCII art as an image?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Download PNG saves your drawing as a sharp image that matches the current dark or light theme. Copy ASCII puts the plain text on your clipboard so you can paste it into code comments, READMEs or documentation."}}, {"@type": "Question", "name": "Does it support Unicode box-drawing characters?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Rectangles, lines and diamonds can use Unicode box-drawing characters like ┌─┐, ╔═╗ and ╭─╮ as well as plain ASCII characters such as + - and |. The editor ships with JetBrains Mono so every character lines up on the grid."}}, {"@type": "Question", "name": "Is the ASCII Canvas Editor free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, it is free and open source. Everything runs in your browser; your drawing is never uploaded anywhere."}}, {"@type": "Question", "name": "Can I move or erase parts of a drawing?", "acceptedAnswer": {"@type": "Answer", "text": "Use the Select tool (V) to drag any connected shape to a new position, or drag a box around an area and press Delete. The Eraser tool (E) removes characters under the cursor, and Ctrl+Z undoes any change."}}, {"@type": "Question", "name": "How do I zoom and pan?", "acceptedAnswer": {"@type": "Answer", "text": "Scroll to zoom toward the cursor. Hold Space and drag, or drag with the middle mouse button, to pan around the 200 × 80 character canvas."}}]}</script>
 </head>
 <body>
 <div id="app">
   <!-- TOP BAR -->
   <div id="topbar">
-    <div class="logo"><a href="/" target="_blank">ASCII<span>Canvas</span></a></div>
+    <div class="logo"><a href="/">ASCII<span>Canvas</span></a></div>
     <div class="topbar-divider"></div>
 
     <div id="toolbar">
@@ -300,6 +307,44 @@
     </div>
   </div>
 </div>
+
+
+<!-- About -->
+<main class="about">
+  <h1>ASCII Canvas Editor: a free ASCII diagram maker</h1>
+  <p>ASCII Canvas Editor is a free, browser-based tool for drawing diagrams and art out of text characters. Sketch flowcharts, architecture diagrams, wireframes and README graphics, then copy them as plain text or download them as a PNG. It runs entirely in your browser with nothing to install.</p>
+
+  <h2>How to use it</h2>
+  <ol>
+    <li>Choose a tool from the toolbar, or press its key: <kbd>R</kbd> rectangle, <kbd>D</kbd> diamond, <kbd>L</kbd> line, <kbd>A</kbd> arrow, <kbd>T</kbd> text, <kbd>F</kbd> freehand, <kbd>E</kbd> eraser.</li>
+    <li>Click and drag on the canvas to draw. Pick a border, line or arrowhead style in the left panel.</li>
+    <li>Use <kbd>V</kbd> to select and move shapes, and <kbd>Ctrl</kbd>+<kbd>Z</kbd> to undo.</li>
+    <li>Press Copy ASCII to copy the text, or Download PNG to save an image.</li>
+  </ol>
+
+  <h2>Features</h2>
+  <ul>
+    <li>Rectangles with Simple, Double, Rounded, Heavy and Light borders</li>
+    <li>Diamonds, lines and arrows in ASCII, light, heavy, dashed and dotted styles</li>
+    <li>Text, freehand drawing with selectable characters, and an adjustable eraser</li>
+    <li>Undo and redo, zoom and pan, keyboard shortcuts for every tool</li>
+    <li>Dark and light themes, PNG export and one-click copy</li>
+  </ul>
+
+  <h2>Frequently asked questions</h2>
+    <h3>How do I make an ASCII box diagram?</h3>
+    <p>Pick the Rectangle tool (R), choose a border style such as Simple, Double, Rounded, Heavy or Light, then click and drag on the canvas. Add Arrow and Line tools to connect boxes and the Text tool to label them.</p>
+    <h3>Can I export my ASCII art as an image?</h3>
+    <p>Yes. Download PNG saves your drawing as a sharp image that matches the current dark or light theme. Copy ASCII puts the plain text on your clipboard so you can paste it into code comments, READMEs or documentation.</p>
+    <h3>Does it support Unicode box-drawing characters?</h3>
+    <p>Yes. Rectangles, lines and diamonds can use Unicode box-drawing characters like ┌─┐, ╔═╗ and ╭─╮ as well as plain ASCII characters such as + - and |. The editor ships with JetBrains Mono so every character lines up on the grid.</p>
+    <h3>Is the ASCII Canvas Editor free?</h3>
+    <p>Yes, it is free and open source. Everything runs in your browser; your drawing is never uploaded anywhere.</p>
+    <h3>Can I move or erase parts of a drawing?</h3>
+    <p>Use the Select tool (V) to drag any connected shape to a new position, or drag a box around an area and press Delete. The Eraser tool (E) removes characters under the cursor, and Ctrl+Z undoes any change.</p>
+    <h3>How do I zoom and pan?</h3>
+    <p>Scroll to zoom toward the cursor. Hold Space and drag, or drag with the middle mouse button, to pan around the 200 × 80 character canvas.</p>
+</main>
 
 <!-- Toast -->
 <div id="toast"></div>

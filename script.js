@@ -104,16 +104,28 @@ function init() {
     resizeCanvases();
     drawGrid();
     render();
+    drawSelection();
+  });
+  // Re-measure once the web font is in; the first measurement may use a fallback font
+  Promise.all([document.fonts.load('14px "JetBrains Mono"', '─M'), document.fonts.ready]).then(() => {
+    measureChar();
+    resizeCanvases();
+    drawGrid();
+    render();
   });
 }
 
 // ---------- CANVAS SIZING ----------
 function resizeCanvases() {
   const rect = canvasContainer.getBoundingClientRect();
-  overlayCanvas.width = rect.width;
-  overlayCanvas.height = rect.height;
-  gridCanvas.width = rect.width;
-  gridCanvas.height = rect.height;
+  const dpr = window.devicePixelRatio || 1;
+  for (const [cv, ctx] of [[overlayCanvas, overlayCtx], [gridCanvas, gridCtx]]) {
+    cv.width = Math.round(rect.width * dpr);
+    cv.height = Math.round(rect.height * dpr);
+    cv.style.width = rect.width + 'px';
+    cv.style.height = rect.height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
 }
 
 // ---------- GRID DRAWING ----------
@@ -128,7 +140,7 @@ function drawGrid() {
   const cw = charWidth * zoom;
   const ch = charHeight * zoom;
 
-  gridCtx.strokeStyle = 'rgba(255,255,255,0.04)';
+  gridCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid-line').trim() || 'rgba(255,255,255,0.04)';
   gridCtx.lineWidth = 0.5;
 
   const startCol = Math.floor(-panX / cw);
@@ -168,6 +180,13 @@ function render() {
 // ---------- OVERLAY DRAWING ----------
 function clearOverlay() {
   overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+}
+
+// Redraw the persistent selection box (if any) after the overlay was cleared
+function drawSelection() {
+  if (!selectedShape) return;
+  const { minC, maxC, minR, maxR } = selectedShape;
+  drawSelectionRect(minC, minR, maxC - minC + 1, maxR - minR + 1);
 }
 
 function drawSelectionRect(col, row, w, h) {
@@ -477,7 +496,8 @@ function trackUsage() {
 }
 
 // ---------- COPY ASCII ----------
-function copyASCII() {
+// Grid rows with trailing blanks, empty edge rows and the common left indent removed
+function getTrimmedLines() {
   let lines = [];
   for (let r = 0; r < ROWS; r++) {
     lines.push(grid[r].join(''));
@@ -496,11 +516,6 @@ function copyASCII() {
     lines.shift();
   }
 
-  if (lines.length === 0) {
-    showToast('Canvas is empty', 'error');
-    return;
-  }
-
   // Find minimum leading whitespace
   let minIndent = Infinity;
   for (const line of lines) {
@@ -511,7 +526,15 @@ function copyASCII() {
   if (minIndent === Infinity) minIndent = 0;
 
   // Trim leading whitespace
-  lines = lines.map(l => l.substring(minIndent));
+  return lines.map(l => l.substring(minIndent));
+}
+
+function copyASCII() {
+  const lines = getTrimmedLines();
+  if (lines.length === 0) {
+    showToast('Canvas is empty', 'error');
+    return;
+  }
 
   const text = lines.join('\n');
 
@@ -550,6 +573,7 @@ function showToast(msg, type) {
 // ---------- TOOL SWITCHING ----------
 function setTool(tool) {
   currentTool = tool;
+  selectedShape = null;
   document.querySelectorAll('.tool-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.tool === tool);
   });
@@ -677,6 +701,8 @@ interactionLayer.addEventListener('mousedown', (e) => {
   if (currentTool === 'select') {
     // Check for shape to move
     if (getCell(row, col) !== ' ') {
+      selectedShape = null;
+      clearOverlay();
       isMoving = true;
       moveStartCol = col;
       moveStartRow = row;
@@ -731,6 +757,8 @@ interactionLayer.addEventListener('mousemove', (e) => {
     lastMouseY = e.clientY;
     render();
     drawGrid();
+    clearOverlay();
+    drawSelection();
     return;
   }
 
@@ -760,6 +788,7 @@ interactionLayer.addEventListener('mousemove', (e) => {
       drawCursorHighlight(col, row, 1);
     } else if (currentTool === 'select') {
       clearOverlay();
+      drawSelection();
       if (getCell(row, col) !== ' ') {
         canvasContainer.style.cursor = 'move';
       } else {
@@ -835,7 +864,9 @@ interactionLayer.addEventListener('mousemove', (e) => {
   }
 });
 
-interactionLayer.addEventListener('mouseup', (e) => {
+// On window so releasing the button outside the canvas still commits the move/draw
+window.addEventListener('mouseup', (e) => {
+  if (!isPanning && !isMoving && !isDrawing) return;
   e.preventDefault();
 
   if (isPanning) {
@@ -902,17 +933,19 @@ interactionLayer.addEventListener('mouseup', (e) => {
     const maxC = Math.max(drawStartCol, col);
     const minR = Math.min(drawStartRow, row);
     const maxR = Math.max(drawStartRow, row);
-    selectedShape = { minC, maxC, minR, maxR };
+    // A plain click (1x1) is not a selection
+    selectedShape = (minC === maxC && minR === maxR) ? null : { minC, maxC, minR, maxR };
   }
 
   clearOverlay();
+  drawSelection();
 });
 
 interactionLayer.addEventListener('mouseleave', () => {
-  if (isPanning) {
-    isPanning = false;
-  }
+  // Active pan/move/draw keeps going; window mouseup finishes it
+  if (isPanning || isMoving || isDrawing) return;
   clearOverlay();
+  drawSelection();
 });
 
 // ---------- FLOOD SELECT ----------
@@ -961,6 +994,8 @@ canvasContainer.addEventListener('wheel', (e) => {
   document.getElementById('status-zoom').textContent = Math.round(zoom * 100) + '%';
   render();
   drawGrid();
+  clearOverlay();
+  drawSelection();
 }, { passive: false });
 
 // ---------- KEYBOARD ----------
@@ -1119,74 +1154,40 @@ interactionLayer.addEventListener('dragstart', (e) => e.preventDefault());
 
 // ---------- DOWNLOAD IMAGE ----------
 function downloadImage() {
-  const asciiCanvas = document.getElementById('ascii-canvas');
-  const text = asciiCanvas.textContent;
+  const lines = getTrimmedLines();
+  if (lines.length === 0) {
+    showToast('Canvas is empty', 'error');
+    return;
+  }
 
-  // Create temporary canvas
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  // Get current theme colors
   const isLightMode = document.documentElement.getAttribute('data-theme') === 'light';
   const bgColor = isLightMode ? '#ffffff' : '#0d0d0d';
   const textColor = isLightMode ? '#222222' : '#e0e0e0';
 
-  // Split text into lines
-  const lines = text.split('\n');
-
-  // Calculate canvas size based on actual measurements and zoom
-  const scaledCharWidth = charWidth * zoom;
-  const scaledCharHeight = charHeight * zoom;
-
-  // Find the actual content bounds (trim empty lines and trailing spaces)
-  let startRow = 0;
-  let endRow = lines.length - 1;
-  let maxWidth = 0;
-
-  // Find non-empty rows
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trim().length > 0) {
-      startRow = i;
-      break;
-    }
-  }
-  for (let i = lines.length - 1; i >= 0; i--) {
-    if (lines[i].trim().length > 0) {
-      endRow = i;
-      break;
-    }
-  }
-
-  // Calculate max width and trim lines
-  const trimmedLines = [];
-  for (let i = startRow; i <= endRow; i++) {
-    const trimmed = lines[i].replace(/\s+$/, ''); // Remove trailing spaces
-    trimmedLines.push(trimmed);
-    const lineWidth = trimmed.length * scaledCharWidth;
-    maxWidth = Math.max(maxWidth, lineWidth);
-  }
-
-  // Set canvas size with padding
+  // Fixed scale (independent of zoom), sharp on HiDPI screens
+  const scale = Math.max(2, window.devicePixelRatio || 1);
   const padding = 20;
-  canvas.width = Math.max(maxWidth + padding * 2, 100);
-  canvas.height = (trimmedLines.length * scaledCharHeight) + padding * 2;
+  const cols = Math.max(...lines.map(l => l.length));
 
-  // Fill background
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round((cols * charWidth + padding * 2) * scale);
+  canvas.height = Math.round((lines.length * charHeight + padding * 2) * scale);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+
   ctx.fillStyle = bgColor;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, canvas.width / scale, canvas.height / scale);
 
-  // Set text properties to match display
   ctx.fillStyle = textColor;
-  ctx.font = `${14 * zoom}px "JetBrains Mono", "Consolas", monospace`;
-  ctx.textBaseline = 'top';
+  ctx.font = '14px "JetBrains Mono", "Consolas", monospace';
+  ctx.textBaseline = 'middle';
 
-  // Draw text lines (center aligned)
-  const startY = padding;
-  trimmedLines.forEach((line, index) => {
-    const y = startY + index * scaledCharHeight;
-    const lineWidth = line.length * scaledCharWidth;
-    const centerX = (canvas.width - lineWidth) / 2;
-    ctx.fillText(line, centerX, y);
+  // One glyph per grid cell so alignment matches the on-screen canvas exactly
+  lines.forEach((line, i) => {
+    const y = padding + i * charHeight + charHeight / 2;
+    for (let j = 0; j < line.length; j++) {
+      if (line[j] !== ' ') ctx.fillText(line[j], padding + j * charWidth, y);
+    }
   });
 
   // Create download link
@@ -1206,7 +1207,7 @@ document.getElementById('download-btn').addEventListener('click', downloadImage)
 
 // ---------- THEME TOGGLE ----------
 function initTheme() {
-  const savedTheme = localStorage.getItem('ascii-canvas-theme') || 'dark';
+  const savedTheme = document.documentElement.getAttribute('data-theme') || 'dark';
   const html = document.documentElement;
   html.setAttribute('data-theme', savedTheme);
   updateThemeIcons(savedTheme);
@@ -1219,6 +1220,7 @@ function toggleTheme() {
   html.setAttribute('data-theme', newTheme);
   localStorage.setItem('ascii-canvas-theme', newTheme);
   updateThemeIcons(newTheme);
+  drawGrid();
 }
 
 function updateThemeIcons(theme) {
